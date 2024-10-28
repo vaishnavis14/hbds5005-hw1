@@ -1,0 +1,276 @@
+---
+title: "Homework 1"
+author: "Vaishnavi Sathiyamoorthy"
+date: "Due 11:59pm on September 16, 2024"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+    fig_height: 4.5
+    fig_width: 4.5
+  pdf_document:
+    fig_height: 3.5
+    fig_width: 3.5
+  word_document:
+    toc: no
+---
+
+<!-- Remember to include your name in the author line in the title section, and save the file as "hw1_YourName.Rmd" -->
+
+```{r,echo=FALSE}
+knitr::opts_chunk$set(cache=TRUE, error=FALSE, message=FALSE, warning=FALSE,
+                      echo=T, tidy.opts=list(width.cutoff=60),tidy=TRUE)
+
+```
+
+```{r load packages}
+library(tidyverse)
+```
+
+```{r load datas}
+## load  NHANES glycohemoglobin data
+df <- read_tsv("nhgh.tsv")
+head(df)
+```
+
+## Question 1. BMI
+<!-- Please make sure your submission is properly sectioned for questions and solutions. -->
+
+### Question 1a. Histogram of BMI
+
+Make a histogram of the BMI values of individuals in the dataset.
+
+#### Solution:
+```{r fig.align="center", echo = TRUE,fig.width = 10}
+ggplot(df, aes(bmi)) + geom_histogram(color = "black", fill = "blue") + 
+  labs(title = "Distribution of BMI", x = "BMI", y = "Counts")
+```
+
+
+### Question 1b. Overlaid histogram of BMI by diabetes diagnosis
+Make an overlaid histogram that colors the BMI of individuals with different diagnosis (dx: no diabetes vs. diabetic/pre-diabetic) differently. This essentially yields two histograms on the sample plot. Please make sure that for dx variable, no diabetes is set as the first level and diabetic/pre-diabetic is set as the second level.
+
+#### Solution: 
+```{r fig.align="center", echo = TRUE,fig.width = 10}
+## use the argument position="identity"
+ggplot(df, aes(bmi, fill = factor(dx))) + 
+  geom_histogram(position = "identity", alpha = 0.8, color = "black") +
+  labs(title = "Distribution of BMI Based on Diabeted Status", fill = "Diabetes Status",
+       x = "BMI", y = "Count") +
+  scale_fill_manual(labels = c("0" = "Non-Diabetic", 
+                                "1" = "Pre-Diabetic/Diabetic"),
+                    values = c("0" = "blue", "1" = "red"))
+```
+
+### Question 1c. Stacked histogram of BMI and diabetes diagnosis
+Make a stacked histogram that colors the BMI of individuals with different diagnosis (dx) differently. Please make sure that for dx variable, no diabetes is set as the first level and diabetic/pre-diabetic is set as the second level.
+
+#### Solution:
+```{r fig.align="center", echo = TRUE,fig.width = 10}
+ggplot(df, aes(bmi, fill = factor(dx))) + geom_histogram(position = "stack", color = "black") +
+  labs(title = "Distribution of BMI Based on Diabeted Status", fill = "Diabetes Status",
+       x = "BMI", y = "Count") +
+  scale_fill_manual(labels = c("0" = "Non-Diabetic", 
+                                "1" = "Pre-Diabetic/Diabetic"),
+                    values = c("0" = "blue", "1" = "red"))
+```
+
+### Question 1d. Understanding graphing methods by comparing plots
+Describe the difference between the two plots in 1b and 1c.
+
+#### Solution:
+The y axes are different between the two plots.
+
+### Question 1e. Describing an observed distribution
+Write a few sentences that describes the distribution of BMI
+
+#### Solution:
+Overall there are less people that are diabetic as oppose to non-diabetic. The peak of the curve for those with diabetes tends to be a higher BMI compared to those with lower BMI. However, the curves heavily overlap, not indicating significant differences in the the BMI to diabetes ratio.
+
+### Question 1f. Density plot of BMI by diabetes diagnosis
+Make a density plot (not stacked) that colors the BMI values of diabetic/pre-diabetic individuals differently from the BMI of individuals who are not diabetic or pre-diabetic.
+
+#### Solution:
+```{r fig.align="center", echo = TRUE,fig.width = 10}
+ggplot(df, aes(x = bmi, fill = factor(dx))) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Density Plot for BMI Based on Diabetes Status",
+       x = "BMI", y = "Density", fill = "Diabetes Status") +
+  scale_fill_manual(labels = c("0" = "Non-Diabetic", 
+                                "1" = "Pre-Diabetic/Diabetic"),
+                    values = c("0" = "blue", "1" = "red"))
+```
+
+### Question 1g. Understanding histograms and density plots
+List two advantages of using a superimposed histogram plot (question 1b) and two advantages of using superimposed density plots (question 1f)
+
+#### Solution:
+Advantages of superimposed histogram plot
+- You can see the distribution of diabetes vs not in the same plot.
+- You and determine where the plots overlap and where they don't.
+
+Advantages of superimposed density plots
+- You can more distinctly tell the shift in increased BMI for those with diabetes.
+- It is easier to tell where the groups overlap and where they differ.
+
+## Question 2. BMI by sex
+
+### Question 2a. Density plot of BMI
+Make a density plot of the BMI data.
+
+#### Solution:
+
+```{r fig.align="center", echo = TRUE,fig.width = 10}
+ggplot(df, aes(x = bmi)) + geom_density() + 
+  labs(title = "Density plot for BMI",
+       x = "BMI", y = "Density")
+```
+
+### Question 2b. Density plots of BMI by sex
+Make a density plot of the BMI data with a different curve for females and males.
+
+For this question, you should use different colors for the different densities and fill in the plot. Also control the transparency so that you can see both plots
+
+#### Solution:
+```{r fig.align="center", echo = TRUE,fig.width = 10}
+ggplot(df, aes(x = bmi, fill = factor(sex))) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Density plot for BMI Based on Sex",
+       x = "BMI", y = "Density", fill = "Sex")
+```
+
+### Question 2c. Describing observed distributions
+Describe the distributions of BMI for males and females.
+
+#### Solution:
+There is a lot of overlap between the BMI of males and females. On the higher end, it looks like females have slightly higher BMI. A greater proportion of males have a BMI around ~27.
+
+## Question 3. BMI categories by race/ethnicity
+Although BMI is a continuous variable, it often is analyzed by categories defined as the following: normal
+when BMI < 25, overweight when 25 ≤ BMI < 30, and obese when BMI ≥ 30. For this question, you are
+asked to analyze BMI as this categorical variable (you will need to create a new variable).
+
+### Question 3a. Side-y-side bar plot
+Create a side-by-side bar plot showing the proportion of individuals in each of the BMI
+categories by race/ethnicity.
+• For this you would want to create a categorical BMI variable (called bmicat) and use ggplot(mapping = aes(str_wrap(re,10), fill = bmicat)).
+• Make each category a different color to help distinguish them, and ensure labels are clearly legible.
+• All bars should be side-by-side and not stacked.
+
+#### Solution:
+```{r fig.align="center", echo = TRUE,fig.width = 10}
+df %>%
+  mutate(bmicat = factor(case_when(
+    bmi < 25 ~ "Normal",
+    bmi >= 25 & bmi < 30 ~ "Overweight",
+    bmi >= 30 ~ "Obese"
+  ), levels = c("Normal", "Overweight", "Obese"))) %>%
+  ggplot(mapping = aes(x = str_wrap(re, 10), fill = bmicat)) + 
+  geom_bar(position = "dodge", color = "black") +
+  labs(title = "Race and BMI Category Barplot",
+       fill = "BMI Category",
+       x = "Race",
+       y = "Counts")
+```
+
+### Question 3b. Describing data based on a plot
+Summarize what you see in the bar plot.
+
+#### Solution:
+When looking at other Hispanic population, the number of people that are normal, overweight, and obese are similar. Mexican American and Non-Hispanic Black tend to have more overweight and obese people compared to the other populations. The other races category has more people with normal BMI compared to the other categories.
+
+## Question 4. Glycohemoglobin by diabetes diagnosis
+
+### Question 4a. Boxplots
+Make side-by-side boxplots of glycohemoglobin based on diabetes diagnosis.
+
+#### Solution:
+```{r fig.align="center", echo = TRUE,fig.width = 10}
+df %>% ggplot(aes(x = factor(dx), y = gh)) + 
+  geom_boxplot() +
+  labs(title = "Diabetes Diagnosis by Glycohemoglobin",
+       x = "Diabetes Diagnosis",
+       y = "Glycohemoglobin") +
+  scale_x_discrete(labels = c("0" = "Non-Diabetic", 
+                              "1" = "Pre-Diabetic/Diabetic"))
+```
+
+### Question 4b. Numeric summaries
+Create a table that contains each of the following values of the glycohemoglobin for each diabetes diagnosis category: mean, median, min, max, standard deviation, and IQR.
+
+#### Solution:
+```{r fig.align="center", echo = TRUE,fig.width = 10}
+df %>% group_by(dx) %>% summarise("Mean" = mean(gh), 
+                                  "Median" = median(gh), 
+                                  "Minimum" = min(gh), 
+                                  "Maximum" = max(gh), 
+                                  "Standard Deviation" = sd(gh), 
+                                  "IQR" = IQR(gh)) %>%
+  mutate(dx = factor(dx, levels = c(0, 1),
+                      labels = c("Non-Diabetic", "Pre-Diabetic/Diabetic")))
+```
+
+### Question 4c. Describing data
+Describe how glycohemoglobin differs among the different diabetic status based on both graphical and numeric summaries of data
+
+#### Solution:
+Based on the graphical data, it can be seen that those that are pre-diabetic or have diabetes have a higher median glycohemoglobin level compared to those who are non-diabetic. This is shown in the mean and median in the numerical data as well. 
+
+## Question 5. Glycohemoglobin, BMI, diabetes diagnosis, and sex
+
+### Question 5a. Scatter plot 1
+Make a scatterplot of glycohemoglobin versus BMI colored by diabetes diagnosis.
+
+#### Solution:
+```{r fig.align="center", echo = TRUE,fig.width = 10}
+ggplot(df, aes(x = gh, y = bmi, color = factor(dx))) + 
+  geom_point() +
+  labs(title = "Glycohemoglobin by BMI Categorized by Diabetes Status",
+       x = "Glycohemoglobin", y = "BMI", color = "Diabetes Status") + 
+  scale_color_manual(values = c("0" = "blue", "1" = "red"),
+                     labels = c("0" = "Non-Diabetic", 
+                                "1" = "Pre-Diabetic/Diabetic"))
+```
+
+### Question 5b. Scatter plot 2
+Make a figure including separate scatterplot panels of glycohemoglobin versus BMI for each diabetes diagnosis group.
+
+```{r fig.align="center", echo = TRUE,fig.width = 10}
+ggplot(df, aes(x = gh, y = bmi)) + 
+  geom_point() +
+  labs(title = "Glycohemoglobin by BMI Categorized by Diabetes Status",
+       x = "Glycohemoglobin", y = "BMI") +
+  facet_grid(dx~., labeller = as_labeller(c("0" = "Non-Diabetic", 
+                                           "1" = "Pre-Diabetic/Diabetic")))
+```
+
+### Question 5c. Understanding data by comparing two plots
+Describe what you see in the plots for parts a and b.
+
+#### Solution:
+It can be seen that the glycohemoglobin levels are slightly higher for those who are prediabetic/diabetic.
+
+### Question 5d. Scatter plot 3
+Make a scatterplot of glycohemoglobin versus BMI colored by sex
+
+#### Solution:
+```{r fig.align="center", echo = TRUE,fig.width = 10}
+ggplot(df, aes(x = gh, y = bmi, color = sex)) + 
+  geom_point() +
+  labs(title = "Glycohemoglobin by BMI Categorized by Sex",
+       x = "Glycohemoglobin", y = "BMI", color = "Sex") + 
+  scale_color_manual(values = c("female" = "pink", "male" = "blue"))
+```
+
+### Question 5e. Describing the data based on a plot
+Describe what you see in the plot.
+
+#### Solution:
+There doesn't seem to be a difference in glycohemoglobin levels based on sex.
+
+### Question 5f. Understanding the data
+Does it appear as though there is more of an influence on the BMI and glycohemoglobin relationship by sex or by diabetes diagnosis? Explain.
+
+#### Solution:
+It seems that there is more of an influence on the BMI and glycohemoglobin relationship by diabetes diagnosis because there seem to be more points where the glycohemoglobin level is higher for those who are pre-diabetic/diabetic. Nonetheless, there doesn't seem to be a significant difference. There is a lot of overlap between the two groups.
